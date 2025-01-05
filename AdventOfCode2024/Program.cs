@@ -1,7 +1,7 @@
 ﻿using AdventOfCode2024;
 using System.Diagnostics;
 
-Console.WriteLine(new Day20().Problem2());
+Console.WriteLine(new Day21().Problem1());
 
 //var runtimes = new List<long>();
 
