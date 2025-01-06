@@ -1,8 +1,13 @@
-﻿namespace AdventOfCode2024
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace AdventOfCode2024
 {
     internal class Day21
     {
         private readonly string[] codes;
+        private readonly Dictionary<(Coord, Coord), List<List<char>>> keypadMemo = [];
+        private readonly Dictionary<(Coord, Coord), List<List<char>>> NumpadMemo = [];
+
 
         public Day21()
         {
@@ -11,23 +16,26 @@
 
         public int Problem1()
         {
-            var testdata = new string[] { "029A", "980A", "179A", "456A", "379A" };
-
-            var a = testdata.Select(ScoreCode).ToList();
-
-            return 0;
-
             return codes.Sum(ScoreCode);
         }
 
         private int ScoreCode(string code)
         {
-            var path = ParseKeypadPath(ParseKeypadPath(ParseCodePath(code)));
+            var pathLength = int.MaxValue;
+
+            foreach(var robot1Path in CombinePaths(ParseCodePaths([..code], NumpadPos, NumpadMemo)))
+            {
+                foreach(var robot2Path in CombinePaths(ParseCodePaths(robot1Path, KeypadPos, keypadMemo)))
+                {
+                    foreach(var robot3Path in CombinePaths(ParseCodePaths(robot2Path, KeypadPos, keypadMemo)))
+                    {
+                        pathLength = Math.Min(pathLength, robot3Path.Count);
+                    }
+                }
+            }
+
             var num = int.Parse(code[0..(code.Length - 1)]);
-
-            Console.WriteLine($"{path.Count} * {num} = {path.Count * num}");
-
-            return path.Count * num;
+            return pathLength * num;
         }
 
         private readonly Dictionary<char, Coord> NumpadPos = new()
@@ -41,95 +49,97 @@
             { '1', (2,0) },
             { '2', (2,1) },
             { '3', (2,2) },
+            { 'X', (3,0) },
             { '0', (3,1) },
             { 'A', (3,2) },
         };
 
-        private List<char> ParseCodePath(string code)
+        private static List<List<List<char>>> ParseCodePaths(List<char> code, Dictionary<char, Coord> keypadCoords, 
+            Dictionary<(Coord, Coord), List<List<char>>> memo)
         {
-            Coord curPos = (3, 2);
-            var path = new List<char>();
+            Coord curPos = keypadCoords['A'];
+            var allPaths = new List<List<List<char>>>();
 
             foreach (var digit in code)
             {
-                var dest = NumpadPos[digit];
+                var digitPaths = new List<List<char>>();
+                var dest = keypadCoords[digit];
 
-                while (curPos != dest)
+                if(memo.TryGetValue((curPos, dest), out var paths))
                 {
-                    if (curPos.Row > dest.Row)
+                    allPaths.AddRange(paths);
+                    curPos = dest;
+                    continue;
+                }
+
+                var queue = new Queue<(Coord, List<char>)>();
+                queue.Enqueue((curPos, []));
+
+                while (queue.Count > 0)
+                {
+                    var (cur, path) = queue.Dequeue();
+
+                    if (cur == dest)
                     {
-                        path.Add('^');
-                        curPos.Row--;
+                        digitPaths.Add([..path, 'A']);
+                        continue;
                     }
-                    else if (curPos.Col < dest.Col)
+
+                    if (cur == keypadCoords['X'])
                     {
-                        path.Add('>');
-                        curPos.Col++;
+                        continue;
                     }
-                    else if (curPos.Row < dest.Row)
+
+                    if(cur.Row > dest.Row)
                     {
-                        path.Add('v');
-                        curPos.Row++;
+                        queue.Enqueue(((cur.Row - 1, cur.Col), [.. path, '^']));
                     }
-                    else if (curPos.Col > dest.Col)
+                    else if(cur.Row < dest.Row)
                     {
-                        path.Add('<');
-                        curPos.Col--;
+                        queue.Enqueue(((cur.Row + 1, cur.Col), [.. path, 'v']));
+                    }
+
+                    if(cur.Col > dest.Col)
+                    {
+                        queue.Enqueue(((cur.Row, cur.Col - 1), [.. path, '<']));
+                    }
+                    else if(cur.Col < dest.Col)
+                    {
+                        queue.Enqueue(((cur.Row, cur.Col + 1), [.. path, '>']));
                     }
                 }
 
-                path.Add('A');
+                memo[(curPos, dest)] = digitPaths;
+                allPaths.Add(digitPaths);
+                curPos = dest;
             }
 
-            return path;
+            return allPaths;
         }
 
         private readonly Dictionary<char, Coord> KeypadPos = new()
         {
-            {'<', (1,0) },
-            {'^', (0,1) },
-            {'v', (1,1) },
-            {'A', (0,2) },
-            {'>', (1,2) }
+            { 'X', (0,0) },
+            { '<', (1,0) },
+            { '^', (0,1) },
+            { 'v', (1,1) },
+            { 'A', (0,2) },
+            { '>', (1,2) }
         };
 
-        private List<char> ParseKeypadPath(List<char> path)
+        private static List<List<char>> CombinePaths(List<List<List<char>>> paths)
         {
-            var curPos = KeypadPos['A'];
-            var newPath = new List<char>();
-
-            foreach(var key in path)
+            var combinedPaths = new List<List<char>>
             {
-                var dest = KeypadPos[key];
+                new()
+            };
 
-                while(curPos != dest)
-                {
-                    if (curPos.Col < dest.Col)
-                    {
-                        newPath.Add('>');
-                        curPos.Col++;
-                    }
-                    else if (curPos.Row > dest.Row)
-                    {
-                        newPath.Add('^');
-                        curPos.Row--;
-                    }
-                    else if (curPos.Row < dest.Row)
-                    {
-                        newPath.Add('v');
-                        curPos.Row++;
-                    }
-                    else if (curPos.Col > dest.Col)
-                    {
-                        newPath.Add('<');
-                        curPos.Col--;
-                    }
-                }
-
-                newPath.Add('A');
+            foreach(var symbolPaths in paths)
+            {
+                combinedPaths = combinedPaths.SelectMany(cp => symbolPaths, (cp, sp) => new List<char>([..cp, ..sp])).ToList();
             }
 
-            return newPath;
+            return [..combinedPaths.GroupBy(p => p.Count).OrderBy(p => p.Key).First()];
         }
     }
 }
