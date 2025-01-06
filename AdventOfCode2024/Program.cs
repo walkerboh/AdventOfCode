@@ -1,7 +1,9 @@
 ﻿using AdventOfCode2024;
 using System.Diagnostics;
 
+var start = Stopwatch.GetTimestamp();
 Console.WriteLine(new Day21().Problem1());
+Console.WriteLine($"{Stopwatch.GetElapsedTime(start)}");
 
 //var runtimes = new List<long>();
 
