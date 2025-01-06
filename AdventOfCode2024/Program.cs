@@ -2,7 +2,7 @@
 using System.Diagnostics;
 
 var start = Stopwatch.GetTimestamp();
-Console.WriteLine(new Day21().Problem1());
+Console.WriteLine(new Day22().Problem2());
 Console.WriteLine($"{Stopwatch.GetElapsedTime(start)}");
 
 //var runtimes = new List<long>();
