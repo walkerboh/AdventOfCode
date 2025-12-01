@@ -1,7 +1,4 @@
 ﻿using AoCHelper;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace AdventOfCode2025
 {
@@ -55,9 +52,11 @@ namespace AdventOfCode2025
 
             foreach (var rot in Rotations)
             {
+                var increment = rot.Direction == Direction.R ? 1 : -1;
+
                 for (var i = 0; i < rot.Distance; i++)
                 {
-                    pos += (rot.Direction == Direction.R ? 1 : -1);
+                    pos += increment;
 
                     if(pos == 100)
                     {
