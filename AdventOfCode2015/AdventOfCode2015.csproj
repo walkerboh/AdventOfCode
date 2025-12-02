@@ -12,6 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AdventOfCodeHelpers\AdventOfCodeHelpers.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
 	<None Update="Inputs\*.txt">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
