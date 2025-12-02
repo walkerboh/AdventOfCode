@@ -1,14 +1,12 @@
-﻿using AoCHelper;
-
-namespace AdventOfCode2025
+﻿namespace AdventOfCode2025
 {
-    internal class Day01 : BaseDay
+    internal class Day01 : CustomDay
     {
         private readonly IEnumerable<Rotation> Rotations = [];
 
         public Day01()
         {
-            Rotations = File.ReadAllLines(InputFilePath).Select(l => new Rotation(l));
+            Rotations = GetInputLines().Select(l => new Rotation(l));
         }
 
         public override ValueTask<string> Solve_1()
