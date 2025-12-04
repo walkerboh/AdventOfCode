@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Day12.cs~RF1b9a8cbe.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
 	<PackageReference Include="AoCHelper" Version="4.1.0" />
   </ItemGroup>
 
