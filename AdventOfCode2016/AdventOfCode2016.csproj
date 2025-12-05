@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="AoCHelper" Version="4.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\AdventOfCodeHelpers\AdventOfCodeHelpers.csproj" />
   </ItemGroup>
 
