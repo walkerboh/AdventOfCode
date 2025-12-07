@@ -75,8 +75,6 @@
 
                 return memo[cur];
             }
-
-            return ValueTask.FromResult(beamPaths.Count.ToString());
         }
     }
 }
